@@ -19,7 +19,7 @@ const stateTopic string = "valetudo/maploader/map"
 const commandTopic string = stateTopic + "/set"
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+	log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 	if strings.HasSuffix(msg.Topic(), "set") {
 		changeMap(client, string(msg.Payload()))
 	} else if string(msg.Payload()) != currentMap {
@@ -30,11 +30,11 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected")
+	log.Println("Connected")
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connect lost: %v", err)
+	log.Printf("Connect lost: %v", err)
 }
 
 var currentMap string = "main"
@@ -88,7 +88,7 @@ func sub(client mqtt.Client) {
 	topic := commandTopic
 	token := client.Subscribe(topic, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s", topic)
+	log.Printf("Subscribed to topic: %s", topic)
 }
 
 // Subscribes to the state topic to load the last map loaded
@@ -96,7 +96,7 @@ func subRetain(client mqtt.Client) {
 	topic := stateTopic
 	token := client.Subscribe(topic, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s", topic)
+	log.Printf("Subscribed to topic: %s", topic)
 }
 
 // Switches the map and reboots the robot
@@ -126,7 +126,7 @@ func changeMap(client mqtt.Client, newMap string) {
 		err = tar.Untar(fmt.Sprintf("/data/maploader/%s.tar", newMap), "/")
 	}
 
-	fmt.Println("map change complete, rebooting robot")
+	log.Println("map change complete, rebooting robot")
 	cmd := exec.Command("sync")
 
 	errSync := cmd.Run()

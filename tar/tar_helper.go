@@ -1,7 +1,7 @@
 package tar
 
 import (
-	"fmt"
+	"log"
 	"os/exec"
 )
 
@@ -26,11 +26,11 @@ func tarCommand(mode string, tarballFilePath string, filePaths ...string) error 
 	stdout, err := cmd.Output()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatalf(err.Error())
 		return err
 	}
 
 	// Print the output
-	fmt.Println(string(stdout))
+	log.Println(string(stdout))
 	return nil
 }
