@@ -24,6 +24,10 @@ Download the binary:
 
 ```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.0.0/maploader-arm64```
 
+Add execution permissions:
+
+```chmod +x /data/maploader-binary```
+
 Open the postboot script:
 
 ```vi /data/_root_postboot.sh```
