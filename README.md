@@ -22,7 +22,7 @@ Open a SSH terminal
 
 Download the binary:
 
-```wget -O /data/maploader https://github.com/pkoehlers/maploader/releases/download/1.0.0/maploader-arm64```
+```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.0.0/maploader-arm64```
 
 Open the postboot script:
 
@@ -32,7 +32,7 @@ Search for the valetudo start block and add the maploader statup after the start
 ```
 if [[ -f /data/valetudo ]]; then
         VALETUDO_CONFIG_PATH=/data/valetudo_config.json /data/valetudo > /dev/null 2>&1 &
-        VALETUDO_CONFIG_PATH=/data/valetudo_config.json /data/maploader > /dev/null 2>&1 &
+        VALETUDO_CONFIG_PATH=/data/valetudo_config.json /data/maploader-binary > /dev/null 2>&1 &
 fi
 ```
 
