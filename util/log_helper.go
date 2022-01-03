@@ -6,12 +6,13 @@ import (
 )
 
 func InitLogging() {
-	err := RotateFile(7, "log/maploader", "log")
+	os.MkdirAll("maploader/log", os.ModePerm)
+	err := RotateFile(7, "maploader/log/maploader", "log")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	f, err := os.OpenFile("log/maploader.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("maploader/log/maploader.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}

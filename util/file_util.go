@@ -12,6 +12,9 @@ func RotateFile(rotationCount int, baseFileName string, baseFileExtension string
 
 	var baseFile = fmt.Sprintf("%s.%s", baseFileName, baseFileExtension)
 	var rotatedFile = fmt.Sprintf("%s-%s.%s", baseFileName, time.Now().Format("2006-01-02-150405"), baseFileExtension)
+	if _, err := os.Stat(baseFile); os.IsNotExist(err) {
+		return nil
+	}
 
 	os.Rename(baseFile, rotatedFile)
 
