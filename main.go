@@ -42,8 +42,8 @@ var currentMap string = "main"
 func main() {
 
 	util.InitLogging()
-
-	log.Println(util.GetExecutableDir())
+	os.Setenv("VALETUDO_CONFIG_PATH", "valetudo_config.json")
+	config.InitConfig(os.Getenv("VALETUDO_CONFIG_PATH"))
 
 	var broker = config.MqttHost()
 	var port = config.MqttPort()
