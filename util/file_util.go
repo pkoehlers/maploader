@@ -2,10 +2,21 @@ package util
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 )
+
+func RemoveDirContents(dirName string) error {
+
+	dir, err := ioutil.ReadDir(dirName)
+	for _, d := range dir {
+		os.RemoveAll(path.Join([]string{dirName, d.Name()}...))
+	}
+	return err
+}
 
 // roatates the provided file by adding the current timestamp to its name
 func RotateFile(rotationCount int, baseFileName string, baseFileExtension string) error {

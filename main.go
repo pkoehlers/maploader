@@ -110,14 +110,10 @@ func changeMap(client mqtt.Client, newMap string) {
 
 	tar.Tar(fmt.Sprintf("/data/maploader/%s.tar", currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
 
-	os.RemoveAll("/data/ri/")
-	os.MkdirAll("/data/ri/", 0755)
+	util.RemoveDirContents("/data/ri/")
+	util.RemoveDirContents("/data/map/")
+	util.RemoveDirContents("/data/DivideMap/")
 
-	os.RemoveAll("/data/map/")
-	os.MkdirAll("/data/map/", 0755)
-
-	os.RemoveAll("/data/DivideMap/")
-	os.MkdirAll("/data/DivideMap/", 0755)
 	mapFileToLoad := fmt.Sprintf("/data/maploader/%s.tar", newMap)
 
 	if _, err := os.Stat(mapFileToLoad); errors.Is(err, os.ErrNotExist) {
