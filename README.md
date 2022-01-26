@@ -48,7 +48,7 @@ Open a SSH terminal
 
 Download the binary:
 
-```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.0.1/maploader-arm64```
+```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.1.0/maploader-arm64```
 
 Add execution permissions:
 
