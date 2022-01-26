@@ -68,6 +68,18 @@ fi
 
 Reboot
 
+# Configuration
+The following things can be customized with environment variables:
+
+| Variable             | Default value              | Description                          |
+|----------------------|----------------------------|--------------------------------------|
+| VALETUDO_CONFIG_PATH | /data/valetudo_config.json | path to the valetudo config file     |
+| MAPLOADER_DIR        | /data/maploader            | directory to store the maps and logs |
+| DEFAULT_MAP_NAME     | main                       | name of the main map (for first use) |
+
+
+
+
 # Technical Details
 As mentioned this is only tested with the Dreame L10 Pro but other Dreame robots should work just fine.
 Currently these files/direcotries are considered "map files":

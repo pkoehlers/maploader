@@ -4,9 +4,17 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 var jsonConfigFile string
+
+func Getenv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
 
 func InitConfig(configFile string) {
 	jsonConfigFile = configFile

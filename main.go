@@ -18,6 +18,9 @@ import (
 const stateTopic string = "valetudo/maploader/map"
 const commandTopic string = stateTopic + "/set"
 
+var maploaderDir string
+var currentMap string
+
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 	if strings.HasSuffix(msg.Topic(), "set") {
@@ -37,13 +40,12 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 	log.Printf("Connect lost: %v", err)
 }
 
-var currentMap string = "main"
-
 func main() {
+	currentMap = config.Getenv("DEFAULT_MAP_NAME", "main")
+	maploaderDir = config.Getenv("MAPLOADER_DIR", "/data/maploader")
 
-	util.InitLogging()
-
-	config.InitConfig(os.Getenv("VALETUDO_CONFIG_PATH"))
+	util.InitLogging(maploaderDir + "/log")
+	config.InitConfig(config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json"))
 
 	var broker = config.MqttHost()
 	var port = config.MqttPort()
@@ -103,23 +105,25 @@ func subRetain(client mqtt.Client) {
 func changeMap(client mqtt.Client, newMap string) {
 	log.Printf("Changing map from %s to %s\n", currentMap, newMap)
 
-	err := util.RotateFile(5, fmt.Sprintf("/data/maploader/%s", currentMap), "tar")
+	err := util.RotateFile(5, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("saving current map")
+	tar.Tar(fmt.Sprintf("%s/%s.tar", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
 
-	tar.Tar(fmt.Sprintf("/data/maploader/%s.tar", currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
-
+	log.Println("removing current map files")
 	util.RemoveDirContents("/data/ri/")
 	util.RemoveDirContents("/data/map/")
 	util.RemoveDirContents("/data/DivideMap/")
 
-	mapFileToLoad := fmt.Sprintf("/data/maploader/%s.tar", newMap)
+	mapFileToLoad := fmt.Sprintf("%s/%s.tar", maploaderDir, newMap)
 
 	if _, err := os.Stat(mapFileToLoad); errors.Is(err, os.ErrNotExist) {
 		log.Println("requested map does not exist")
 	} else {
-		err = tar.Untar(fmt.Sprintf("/data/maploader/%s.tar", newMap), "/")
+		log.Println("restoring map from archive")
+		err = tar.Untar(fmt.Sprintf("%s/%s.tar", maploaderDir, newMap), "/")
 	}
 
 	log.Println("map change complete, rebooting robot")
