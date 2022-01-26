@@ -138,8 +138,6 @@ func changeMap(client mqtt.Client, newMap string) {
 	currentMap = newMap
 	publish(client)
 
-	time.Sleep(4 * time.Second)
-
 	cmdReboot := exec.Command("reboot")
 	errReboot := cmdReboot.Run()
 
