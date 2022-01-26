@@ -34,6 +34,9 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 	log.Println("Connected")
+
+	sub(client)
+	subRetain(client)
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
@@ -71,9 +74,6 @@ RetryLoop:
 			}
 		}
 	}
-
-	sub(client)
-	subRetain(client)
 
 	for {
 		time.Sleep(time.Second)
