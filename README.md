@@ -25,16 +25,20 @@ I am using this with Homeassistant, where I trigger the map change as part of an
 The payload in both topics simply is the string determining the map name.
 
 ## Homeassistant Config
-This project does not support Home Assistant auto discovery as I am using the sensor to define the list of possible maps. To create a new map, just add a new value to the field and set the entity to that new value.
+This project does not support Home Assistant auto discovery as I am using the sensor to define the list of possible maps. To allow Home Assistant to work with maploader add the section below to your configuration.yaml. To create a new map, just add a new value to the field and set the entity to that new value.
 
 ```
-platform: mqtt
-state_topic: valetudo/maploader/map
-command_topic: valetudo/maploader/map/set
-name: "vacuum_maploader_map"
-options:
-  - "main"
-  - "2ndfloor"
+mqtt:
+  sensor:
+    - state_topic: valetudo/maploader/map
+  select:
+    - command_topic: valetudo/maploader/map/set
+      state_topic: valetudo/maploader/map
+      name: "vacuum_maploader_map"
+      options:
+        - "main"
+        - "second_floor"
+
 ```
 
 # Installation
