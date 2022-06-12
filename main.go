@@ -14,8 +14,9 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-const stateTopic string = "valetudo/maploader/map"
-const commandTopic string = stateTopic + "/set"
+const stateTopic string = "valetudo/maploader/status"
+const currentMapTopic string = "valetudo/maploader/map"
+const commandTopic string = currentMapTopic + "/set"
 
 var maploaderDir string
 var currentMap string
@@ -39,7 +40,7 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 	log.Println("Connected")
 
 	subCommandTopic(client)
-	subStateTopic(client)
+	subCurrentMapTopic(client)
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
@@ -63,6 +64,12 @@ func main() {
 	opts.SetPassword(config.MqttPassword())
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
+
+	opts.WillTopic = stateTopic
+	opts.WillEnabled = true
+	opts.WillPayload = []byte("offline")
+	opts.WillRetained = true
+
 	client := mqtt.NewClient(opts)
 	retry := time.NewTicker(5 * time.Second)
 RetryLoop:
@@ -77,14 +84,19 @@ RetryLoop:
 			}
 		}
 	}
-
+	publishState(client, "idle")
 	for {
 		time.Sleep(time.Second)
 	}
 }
 
-func publishState(client mqtt.Client) {
-	token := client.Publish(stateTopic, 0, true, currentMap)
+func publishCurrentMap(client mqtt.Client) {
+	token := client.Publish(currentMapTopic, 0, true, currentMap)
+	token.Wait()
+	time.Sleep(time.Second)
+}
+func publishState(client mqtt.Client, status string) {
+	token := client.Publish(stateTopic, 0, true, status)
 	token.Wait()
 	time.Sleep(time.Second)
 }
@@ -96,9 +108,9 @@ func subCommandTopic(client mqtt.Client) {
 	log.Printf("Subscribed to topic: %s", topic)
 }
 
-// Subscribes to the state topic to load the last map loaded
-func subStateTopic(client mqtt.Client) {
-	topic := stateTopic
+// Subscribes to the current map topic to load the last map loaded
+func subCurrentMapTopic(client mqtt.Client) {
+	topic := currentMapTopic
 	token := client.Subscribe(topic, 1, messageStateTopicHandler)
 	token.Wait()
 	log.Printf("Subscribed to topic: %s", topic)
@@ -106,7 +118,7 @@ func subStateTopic(client mqtt.Client) {
 
 // Switches the map and reboots the robot
 func changeMap(client mqtt.Client, newMap string) {
-
+	publishState(client, "changing_map")
 	log.Printf("Changing map from %s to %s\n", currentMap, newMap)
 
 	err := util.RotateFile(roationKeepMaps, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
@@ -148,7 +160,8 @@ func changeMap(client mqtt.Client, newMap string) {
 	startProcesses()
 
 	currentMap = newMap
-	publishState(client)
+	publishCurrentMap(client)
+	publishState(client, "idle")
 
 }
 
