@@ -186,7 +186,8 @@ func startValetudo() {
 	cmd := exec.Command("/data/valetudo")
 	cmd.Stdout = devnull
 	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "VALETUDO_CONFIG_PATH=/data/valetudo_config.json")
+	valetudoConfigEnv := "VALETUDO_CONFIG_PATH=" + config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json")
+	cmd.Env = append(cmd.Env, valetudoConfigEnv)
 	err := cmd.Start()
 
 	if err != nil {
