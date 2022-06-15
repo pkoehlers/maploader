@@ -122,11 +122,10 @@ func changeMap(client mqtt.Client, newMap string) {
 	log.Printf("Changing map from %s to %s\n", currentMap, newMap)
 
 	err := util.RotateFile(roationKeepMaps, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	log.Println("saving current map")
-	tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
+	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
+	checkAndHandleErrorWithMqtt(err, client)
 
 	log.Println("stopping processes")
 	stopProcesses()
@@ -137,24 +136,18 @@ func changeMap(client mqtt.Client, newMap string) {
 	util.RemoveDirContents("/data/DivideMap/")
 
 	mapFileToLoadMatches, err := filepath.Glob(fmt.Sprintf("%s/%s.tar*", maploaderDir, newMap))
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkAndHandleErrorWithMqtt(err, client)
+
 	if len(mapFileToLoadMatches) == 0 {
 		log.Println("requested map does not exist")
 	} else {
 		log.Println("restoring map from archive")
 		err = tar.Untar(mapFileToLoadMatches[0], "/")
+		checkAndHandleErrorWithMqtt(err, client)
 	}
 
 	log.Println("map change complete, syncing files")
-	cmd := exec.Command("sync")
-
-	errSync := cmd.Run()
-
-	if errSync != nil {
-		log.Fatal(errSync)
-	}
+	excuteCmd("sync")
 
 	log.Println("restarting processes")
 	startProcesses()
@@ -166,21 +159,21 @@ func changeMap(client mqtt.Client, newMap string) {
 }
 
 func stopProcesses() {
-	excuteCmdLogOnError("killall", "-9", "valetudo")
-	excuteCmdLogOnError("sh", "/etc/rc.d/miio.sh", "stop")
-	excuteCmdLogOnError("killall", "-9", "ava")
+	excuteCmd("killall", "-9", "valetudo")
+	excuteCmd("sh", "/etc/rc.d/miio.sh", "stop")
+	excuteCmd("killall", "-9", "ava")
 }
 
 func startProcesses() {
-	excuteCmdLogOnError("sh", "/etc/rc.d/miio.sh")
-	excuteCmdLogOnError("sh", "/etc/rc.d/ava.sh")
+	excuteCmd("sh", "/etc/rc.d/miio.sh")
+	excuteCmd("sh", "/etc/rc.d/ava.sh")
 	startValetudo()
 }
 
 func startValetudo() {
 	devnull, dnerr := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
 	if dnerr != nil {
-		panic(dnerr)
+		checkAndHandleError(dnerr)
 	}
 
 	cmd := exec.Command("/data/valetudo")
@@ -191,18 +184,31 @@ func startValetudo() {
 	err := cmd.Start()
 
 	if err != nil {
-		log.Fatal(err)
+		checkAndHandleError(err)
 	} else {
 		cmd.Process.Release()
 	}
 }
 
-func excuteCmdLogOnError(cmdStr string, cmdArgs ...string) {
+func excuteCmd(cmdStr string, cmdArgs ...string) {
 
 	cmd := exec.Command(cmdStr, cmdArgs...)
 	err := cmd.Run()
 
 	if err != nil {
+		checkAndHandleError(err)
+	}
+}
+
+func checkAndHandleError(err error) {
+	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
+	}
+}
+func checkAndHandleErrorWithMqtt(err error, client mqtt.Client) {
+	if err != nil {
+		checkAndHandleError(err)
+		publishState(client, "error")
 	}
 }
