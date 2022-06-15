@@ -20,6 +20,8 @@ const commandTopic string = stateTopic + "/set"
 var maploaderDir string
 var currentMap string
 
+var roationKeepMaps int
+
 var messageStateTopicHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 	if string(msg.Payload()) != currentMap {
@@ -47,6 +49,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 func main() {
 	currentMap = config.Getenv("DEFAULT_MAP_NAME", "main")
 	maploaderDir = config.Getenv("MAPLOADER_DIR", "/data/maploader")
+	roationKeepMaps = config.RotationKeepMaps()
 
 	util.InitLogging(maploaderDir + "/log")
 	config.InitConfig(config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json"))
@@ -106,7 +109,7 @@ func changeMap(client mqtt.Client, newMap string) {
 
 	log.Printf("Changing map from %s to %s\n", currentMap, newMap)
 
-	err := util.RotateFile(5, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
+	err := util.RotateFile(roationKeepMaps, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
 	if err != nil {
 		log.Fatal(err)
 	}

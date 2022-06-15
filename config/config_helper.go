@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 )
 
 var jsonConfigFile string
@@ -37,6 +38,13 @@ func MqttUsername() string {
 func MqttPassword() string {
 	config := getValetudoConfig()
 	return config.Mqtt.Connection.Authentication.Credentials.Password
+}
+func RotationKeepMaps() int {
+	roationKeepMaps, err := strconv.Atoi(Getenv("ROTATION_KEEP_MAPS", "5"))
+	if err != nil {
+		roationKeepMaps = 5
+	}
+	return roationKeepMaps
 }
 
 var valetudoConfig ValetudoConfig
