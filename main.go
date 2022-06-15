@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"maploader/config"
@@ -9,6 +8,7 @@ import (
 	"maploader/util"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -111,7 +111,7 @@ func changeMap(client mqtt.Client, newMap string) {
 		log.Fatal(err)
 	}
 	log.Println("saving current map")
-	tar.Tar(fmt.Sprintf("%s/%s.tar", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
+	tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
 
 	log.Println("stopping processes")
 	stopProcesses()
@@ -121,13 +121,15 @@ func changeMap(client mqtt.Client, newMap string) {
 	util.RemoveDirContents("/data/map/")
 	util.RemoveDirContents("/data/DivideMap/")
 
-	mapFileToLoad := fmt.Sprintf("%s/%s.tar", maploaderDir, newMap)
-
-	if _, err := os.Stat(mapFileToLoad); errors.Is(err, os.ErrNotExist) {
+	mapFileToLoadMatches, err := filepath.Glob(fmt.Sprintf("%s/%s.tar*", maploaderDir, newMap))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(mapFileToLoadMatches) == 0 {
 		log.Println("requested map does not exist")
 	} else {
 		log.Println("restoring map from archive")
-		err = tar.Untar(fmt.Sprintf("%s/%s.tar", maploaderDir, newMap), "/")
+		err = tar.Untar(mapFileToLoadMatches[0], "/")
 	}
 
 	log.Println("map change complete, syncing files")

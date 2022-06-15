@@ -5,12 +5,12 @@ import (
 	"os/exec"
 )
 
-// Use shell command tar cvf... to add supplied filePaths to the tar
+// Use shell command tar to add supplied filePaths to the tar
 func Tar(tarballFilePath string, filePaths ...string) error {
-	return tarCommand("cvf", tarballFilePath, filePaths...)
+	return tarCommand("zcvf", tarballFilePath, filePaths...)
 }
 
-// Use shell command tar xvf... to untar into the root file system
+// Use shell command tar to untar into the root file system
 func Untar(tarballFilePath string, target string) error {
 	return tarCommand("xvf", tarballFilePath, "-C", "/")
 }
