@@ -112,6 +112,9 @@ func changeMap(client mqtt.Client, newMap string) {
 	log.Println("saving current map")
 	tar.Tar(fmt.Sprintf("%s/%s.tar", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
 
+	log.Println("stopping processes")
+	stopProcesses()
+
 	log.Println("removing current map files")
 	util.RemoveDirContents("/data/ri/")
 	util.RemoveDirContents("/data/map/")
@@ -126,7 +129,7 @@ func changeMap(client mqtt.Client, newMap string) {
 		err = tar.Untar(fmt.Sprintf("%s/%s.tar", maploaderDir, newMap), "/")
 	}
 
-	log.Println("map change complete, rebooting robot")
+	log.Println("map change complete, syncing files")
 	cmd := exec.Command("sync")
 
 	errSync := cmd.Run()
@@ -135,13 +138,51 @@ func changeMap(client mqtt.Client, newMap string) {
 		log.Fatal(errSync)
 	}
 
+	log.Println("restarting processes")
+	startProcesses()
+
 	currentMap = newMap
 	publish(client)
 
-	cmdReboot := exec.Command("reboot")
-	errReboot := cmdReboot.Run()
+}
 
-	if errReboot != nil {
-		log.Fatal(errReboot)
+func stopProcesses() {
+	excuteCmdLogOnError("killall", "-9", "valetudo")
+	excuteCmdLogOnError("sh", "/etc/rc.d/miio.sh", "stop")
+	excuteCmdLogOnError("killall", "-9", "ava")
+}
+
+func startProcesses() {
+	excuteCmdLogOnError("sh", "/etc/rc.d/miio.sh")
+	excuteCmdLogOnError("sh", "/etc/rc.d/ava.sh")
+	startValetudo()
+}
+
+func startValetudo() {
+	devnull, dnerr := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
+	if dnerr != nil {
+		panic(dnerr)
+	}
+
+	cmd := exec.Command("/data/valetudo")
+	cmd.Stdout = devnull
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "VALETUDO_CONFIG_PATH=/data/valetudo_config.json")
+	err := cmd.Start()
+
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		cmd.Process.Release()
+	}
+}
+
+func excuteCmdLogOnError(cmdStr string, cmdArgs ...string) {
+
+	cmd := exec.Command(cmdStr, cmdArgs...)
+	err := cmd.Run()
+
+	if err != nil {
+		log.Fatal(err)
 	}
 }
