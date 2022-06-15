@@ -6,23 +6,39 @@ Currently this only supports Dreame robots, tested with a [Dreame L10 Pro](https
 
 A similar project for Xiaomi/Roborock vacuums (without further affiliation) can be found here: [Thyraz/MapLoader](https://github.com/Thyraz/MapLoader)
 
+## Note
+The map changing process used in this project is purely based on observations and testing. 
+This is neither supported by Dreame nor Valetudo. If you consider your map valueable, back it up before using the maploader.
+
+It does not matter if the vacuum is docked or not but ensure that map changes don't take place during cleaning tasks.
 # How it works
 The maploader is a small programm running on the robot. It creates a state and command topic in the configured MQTT broker. 
 
-When a new map name is sent to the command topic, the robot will backup the current map files, remove all the map files and restore the other map if it exists. It will finally reboot the robot.
+When a new map name is sent to the command topic, the robot will backup the current map files, remove all the map files and restore the other map if it exists. It will finally restart relevant processes on the vacuum to load the new map.
 
 In case anything goes wrong, you can get the last few backup archives for each map in ```/data/maploader```.
 
 The default map name is "main".
 
-After the map change Valetudo might show an empty map and it takes some time to load the actual map. This process can be sped up by starting the cleaning (and stopping it directly).
+After the map change, Valetudo will be restarted and will not be reachable for some seconds. Sometimes Valetudo might show an empty map after restarting and it takes some time to load the actual map. This process can be sped up by starting the cleaning (and stopping it directly).
 
 I am using this with Homeassistant, where I trigger the map change as part of an automation and move the robot to the other zone. It can then be operated on the new map after the reboot.
-## MQTT Topics
-* State topic: ```valetudo/maploader/map```
-* Command topic: ```valetudo/maploader/map```
 
-The payload in both topics simply is the string determining the map name.
+## MQTT Topics
+* Current map topic: ```valetudo/maploader/map```
+* Command topic: ```valetudo/maploader/map/set```
+* Maploader state topic: ```valetudo/maploader/status```
+
+The payload in the map topics simply is the string determining the map name.
+
+The maploader status can change to the following value:
+
+| Status       | Description                                             |
+| ------------ | ------------------------------------------------------- |
+| idle         | Maploader is started and awaiting commands              |
+| changing_map | The map is currently being changed                      |
+| error        | An error occured, logs need to be checked               |
+| offline      | The maploader process exited / lost the MQTT connection |
 
 ## Homeassistant Config
 This project does not support Home Assistant auto discovery as I am using the sensor to define the list of possible maps. To allow Home Assistant to work with maploader add the section below to your configuration.yaml. To create a new map, just add a new value to the field and set the entity to that new value.
@@ -30,7 +46,7 @@ This project does not support Home Assistant auto discovery as I am using the se
 ```
 mqtt:
   sensor:
-    - state_topic: valetudo/maploader/map
+    - state_topic: valetudo/maploader/status
   select:
     - command_topic: valetudo/maploader/map/set
       state_topic: valetudo/maploader/map
@@ -52,7 +68,7 @@ Open a SSH terminal
 
 Download the binary:
 
-```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.1.0/maploader-arm64```
+```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.2.0/maploader-arm64```
 
 Add execution permissions:
 
@@ -75,12 +91,12 @@ Reboot
 # Configuration
 The following things can be customized with environment variables:
 
-| Variable             | Default value              | Description                          |
-|----------------------|----------------------------|--------------------------------------|
-| VALETUDO_CONFIG_PATH | /data/valetudo_config.json | path to the valetudo config file     |
-| MAPLOADER_DIR        | /data/maploader            | directory to store the maps and logs |
-| DEFAULT_MAP_NAME     | main                       | name of the main map (for first use) |
-
+| Variable             | Default value              | Description                           |
+|----------------------|----------------------------|---------------------------------------|
+| VALETUDO_CONFIG_PATH | /data/valetudo_config.json | path to the valetudo config file      |
+| MAPLOADER_DIR        | /data/maploader            | directory to store the maps and logs  |
+| DEFAULT_MAP_NAME     | main                       | name of the main map (for first use)  |
+| ROTATION_KEEP_MAPS   | 5                          | number of map backups to keep per map |
 
 
 
