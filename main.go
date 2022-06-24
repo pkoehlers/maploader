@@ -173,7 +173,7 @@ func startProcesses() {
 func startValetudo() {
 	devnull, dnerr := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
 	if dnerr != nil {
-		checkAndHandleError(dnerr)
+		util.CheckAndHandleError(dnerr)
 	}
 
 	cmd := exec.Command("/data/valetudo")
@@ -184,7 +184,7 @@ func startValetudo() {
 	err := cmd.Start()
 
 	if err != nil {
-		checkAndHandleError(err)
+		util.CheckAndHandleError(err)
 	} else {
 		cmd.Process.Release()
 	}
@@ -196,19 +196,13 @@ func excuteCmd(cmdStr string, cmdArgs ...string) {
 	err := cmd.Run()
 
 	if err != nil {
-		checkAndHandleError(err)
+		util.CheckAndHandleError(err)
 	}
 }
 
-func checkAndHandleError(err error) {
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-}
 func checkAndHandleErrorWithMqtt(err error, client mqtt.Client) {
 	if err != nil {
-		checkAndHandleError(err)
+		util.CheckAndHandleError(err)
 		publishState(client, "error")
 	}
 }
