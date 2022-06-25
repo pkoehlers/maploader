@@ -1,4 +1,4 @@
-package cmd
+package robot
 
 import (
 	"maploader/config"
@@ -19,13 +19,15 @@ var AvaProcess = Process{StartCommand: "sh", StartArgs: []string{"/etc/rc.d/ava.
 
 func StopProcesses() {
 	ExcuteCmd("killall", "-9", "valetudo")
-	ExcuteCmd("sh", "/etc/rc.d/miio.sh", "stop")
-	ExcuteCmd("killall", "-9", "ava")
+	for _, restartProcess := range CurrentRobot.restartProcesses {
+		ExcuteCmd(restartProcess.StopCommand, restartProcess.StopArgs...)
+	}
 }
 
 func StartProcesses() {
-	ExcuteCmd("sh", "/etc/rc.d/miio.sh")
-	ExcuteCmd("sh", "/etc/rc.d/ava.sh")
+	for _, restartProcess := range CurrentRobot.restartProcesses {
+		ExcuteCmd(restartProcess.StartCommand, restartProcess.StartArgs...)
+	}
 	startValetudo()
 }
 
@@ -37,6 +39,16 @@ func ExcuteCmd(cmdStr string, cmdArgs ...string) {
 	if err != nil {
 		util.CheckAndHandleError(err)
 	}
+}
+
+func getRobotHostname() []byte {
+	cmd := exec.Command("uname", "-n")
+	out, err := cmd.Output()
+
+	if err != nil {
+		util.CheckAndHandleError(err)
+	}
+	return out
 }
 
 func startValetudo() {

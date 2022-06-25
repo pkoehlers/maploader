@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"maploader/cmd"
 	"maploader/config"
+	"maploader/robot"
 	"maploader/tar"
 	"maploader/util"
 	"path/filepath"
@@ -53,6 +53,8 @@ func main() {
 
 	util.InitLogging(maploaderDir + "/log")
 	config.InitConfig(config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json"))
+
+	robot.DetectRobot()
 
 	var broker = config.MqttHost()
 	var port = config.MqttPort()
@@ -123,16 +125,14 @@ func changeMap(client mqtt.Client, newMap string) {
 	err := util.RotateFile(roationKeepMaps, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
 
 	log.Println("saving current map")
-	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
+	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), robot.CurrentRobot.MapFilesAndFolders()...)
 	checkAndHandleErrorWithMqtt(err, client)
 
 	log.Println("stopping processes")
-	cmd.StopProcesses()
+	robot.StopProcesses()
 
 	log.Println("removing current map files")
-	util.RemoveDirContents("/data/ri/")
-	util.RemoveDirContents("/data/map/")
-	util.RemoveDirContents("/data/DivideMap/")
+	util.RemoveDirContents(robot.CurrentRobot.MapFolders...)
 
 	mapFileToLoadMatches, err := filepath.Glob(fmt.Sprintf("%s/%s.tar*", maploaderDir, newMap))
 	checkAndHandleErrorWithMqtt(err, client)
@@ -146,10 +146,10 @@ func changeMap(client mqtt.Client, newMap string) {
 	}
 
 	log.Println("map change complete, syncing files")
-	cmd.ExcuteCmd("sync")
+	robot.ExcuteCmd("sync")
 
 	log.Println("restarting processes")
-	cmd.StartProcesses()
+	robot.StartProcesses()
 
 	currentMap = newMap
 	publishCurrentMap(client)

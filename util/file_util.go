@@ -9,13 +9,18 @@ import (
 	"time"
 )
 
-func RemoveDirContents(dirName string) error {
+func RemoveDirContents(dirNames ...string) error {
+	for _, dirName := range dirNames {
+		dir, err := ioutil.ReadDir(dirName)
+		for _, d := range dir {
+			os.RemoveAll(path.Join([]string{dirName, d.Name()}...))
+		}
+		if err != nil {
+			return err
+		}
 
-	dir, err := ioutil.ReadDir(dirName)
-	for _, d := range dir {
-		os.RemoveAll(path.Join([]string{dirName, d.Name()}...))
 	}
-	return err
+	return nil
 }
 
 // roatates the provided file by adding the current timestamp to its name
@@ -62,4 +67,29 @@ func GetExecutableDir() string {
 		panic(err)
 	}
 	return filepath.Dir(ex)
+}
+
+func CheckFileExists(path string) bool {
+	fileInfo, err := os.Stat(path)
+	return err == nil && !fileInfo.IsDir()
+}
+func CheckDirectoryExists(path string) bool {
+	fileInfo, err := os.Stat(path)
+	return err == nil && fileInfo.IsDir()
+}
+func CheckFilesExists(paths ...string) bool {
+	for _, path := range paths {
+		if !CheckFileExists(path) {
+			return false
+		}
+	}
+	return true
+}
+func CheckDirectoriesExists(paths ...string) bool {
+	for _, path := range paths {
+		if !CheckDirectoryExists(path) {
+			return false
+		}
+	}
+	return true
 }
