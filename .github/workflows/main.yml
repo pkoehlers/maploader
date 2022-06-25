@@ -16,9 +16,17 @@ jobs:
       uses: actions/checkout@v2
     - name: Compile ARM64
       run: env GOOS=linux GOARCH=arm64 go build -o maploader-arm64
-    - name: Archive
+    - name: Compile ARM
+      run: env GOOS=linux GOARCH=arm go build -o maploader-arm
+    - name: Archive ARM64
       uses: actions/upload-artifact@v2
       with:
-        name: binary
+        name: maploader-arm64
         path: |
           maploader-arm64
+    - name: Archive ARM
+      uses: actions/upload-artifact@v2
+      with:
+        name: maploader-arm
+        path: |
+          maploader-arm

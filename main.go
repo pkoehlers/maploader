@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"log"
 	"maploader/config"
+	"maploader/robot"
 	"maploader/tar"
 	"maploader/util"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -54,6 +53,8 @@ func main() {
 
 	util.InitLogging(maploaderDir + "/log")
 	config.InitConfig(config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json"))
+
+	robot.DetectRobot()
 
 	var broker = config.MqttHost()
 	var port = config.MqttPort()
@@ -124,16 +125,14 @@ func changeMap(client mqtt.Client, newMap string) {
 	err := util.RotateFile(roationKeepMaps, fmt.Sprintf("%s/%s", maploaderDir, currentMap), "tar")
 
 	log.Println("saving current map")
-	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), "/data/ri", "/data/map", "/data/DivideMap", "/data/config/ava/mult_map.json")
+	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), robot.CurrentRobot.MapFilesAndFolders()...)
 	checkAndHandleErrorWithMqtt(err, client)
 
 	log.Println("stopping processes")
-	stopProcesses()
+	robot.StopProcesses()
 
 	log.Println("removing current map files")
-	util.RemoveDirContents("/data/ri/")
-	util.RemoveDirContents("/data/map/")
-	util.RemoveDirContents("/data/DivideMap/")
+	util.RemoveDirContents(robot.CurrentRobot.MapFolders...)
 
 	mapFileToLoadMatches, err := filepath.Glob(fmt.Sprintf("%s/%s.tar*", maploaderDir, newMap))
 	checkAndHandleErrorWithMqtt(err, client)
@@ -147,10 +146,10 @@ func changeMap(client mqtt.Client, newMap string) {
 	}
 
 	log.Println("map change complete, syncing files")
-	excuteCmd("sync")
+	robot.ExcuteCmd("sync")
 
 	log.Println("restarting processes")
-	startProcesses()
+	robot.StartProcesses()
 
 	currentMap = newMap
 	publishCurrentMap(client)
@@ -158,57 +157,9 @@ func changeMap(client mqtt.Client, newMap string) {
 
 }
 
-func stopProcesses() {
-	excuteCmd("killall", "-9", "valetudo")
-	excuteCmd("sh", "/etc/rc.d/miio.sh", "stop")
-	excuteCmd("killall", "-9", "ava")
-}
-
-func startProcesses() {
-	excuteCmd("sh", "/etc/rc.d/miio.sh")
-	excuteCmd("sh", "/etc/rc.d/ava.sh")
-	startValetudo()
-}
-
-func startValetudo() {
-	devnull, dnerr := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
-	if dnerr != nil {
-		checkAndHandleError(dnerr)
-	}
-
-	cmd := exec.Command("/data/valetudo")
-	cmd.Stdout = devnull
-	cmd.Env = os.Environ()
-	valetudoConfigEnv := "VALETUDO_CONFIG_PATH=" + config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json")
-	cmd.Env = append(cmd.Env, valetudoConfigEnv)
-	err := cmd.Start()
-
-	if err != nil {
-		checkAndHandleError(err)
-	} else {
-		cmd.Process.Release()
-	}
-}
-
-func excuteCmd(cmdStr string, cmdArgs ...string) {
-
-	cmd := exec.Command(cmdStr, cmdArgs...)
-	err := cmd.Run()
-
-	if err != nil {
-		checkAndHandleError(err)
-	}
-}
-
-func checkAndHandleError(err error) {
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-}
 func checkAndHandleErrorWithMqtt(err error, client mqtt.Client) {
 	if err != nil {
-		checkAndHandleError(err)
+		util.CheckAndHandleError(err)
 		publishState(client, "error")
 	}
 }
