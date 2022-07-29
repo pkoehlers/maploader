@@ -57,6 +57,19 @@ mqtt:
 
 ```
 
+# Supported robots
+
+The following models are known to work with the maploader:
+
+| Model                | binary                     |
+|----------------------|----------------------------|
+| Dreame L10 Pro       | maploader-arm64            |
+| Dreame F9            | maploader-arm              |
+
+If your Dreame robot is not listed here, you need to find out the arch of your robot (e.g. with ```uname -m```, where ```aarch64``` -> ...-arm64 binary).
+
+Please open an issue, if your Dreame robot is not listed here but works or you need assistance.
+
 # Installation
 The binary must be placed in the ```/data``` folder and it needs to be started with the system.
 
@@ -66,9 +79,9 @@ Make sure that Valetudo is working and MQTT is also setup in Valetudo.
 
 Open a SSH terminal
 
-Download the binary:
+Download the binary: (check the supported robots section for the correct filename in the URL)
 
-```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.2.0/maploader-arm64```
+```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.3.0/maploader-arm64```
 
 Add execution permissions:
 
