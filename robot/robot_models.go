@@ -9,4 +9,8 @@ var robots []Robot = []Robot{
 		MapFolders:       []string{"/data/log/ri/", "/data/DivideMap"},
 		mapFiles:         []string{"/data/config/ava/mult_map.json", "/data/log/map_info.bin", "/data/log/slam.db"},
 		restartProcesses: []Process{MiioClientProcess, AvaProcess}},
+	{model: "p2187", // Dreame D9 Pro
+		MapFolders:       []string{"/data/ri", "/data/map", "/data/DivideMap", "/data/DivideDebug"},
+		mapFiles:         []string{"/data/config/ava/mult_map.json", "/data/log/map_info.bin"},
+		restartProcesses: []Process{MiioClientProcess, AvaProcess}},
 }
