@@ -65,6 +65,7 @@ The following models are known to work with the maploader:
 |----------------------|----------------------------|
 | Dreame L10 Pro       | maploader-arm64            |
 | Dreame F9            | maploader-arm              |
+| Dreame D9 Pro        | maploader-arm              |
 
 If your Dreame robot is not listed here, you need to find out the arch of your robot (e.g. with ```uname -m```, where ```aarch64``` -> ...-arm64 binary).
 
@@ -81,7 +82,7 @@ Open a SSH terminal
 
 Download the binary: (check the supported robots section for the correct filename in the URL)
 
-```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/download/v1.3.0/maploader-arm64```
+```wget -O /data/maploader-binary https://github.com/pkoehlers/maploader/releases/latest/download/maploader-arm64```
 
 Add execution permissions:
 
