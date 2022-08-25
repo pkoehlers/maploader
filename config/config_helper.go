@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -40,18 +39,18 @@ func MqttPassword() string {
 	return config.Mqtt.Connection.Authentication.Credentials.Password
 }
 func RotationKeepMaps() int {
-	roationKeepMaps, err := strconv.Atoi(Getenv("ROTATION_KEEP_MAPS", "5"))
+	rotationKeepMaps, err := strconv.Atoi(Getenv("ROTATION_KEEP_MAPS", "5"))
 	if err != nil {
-		roationKeepMaps = 5
+		rotationKeepMaps = 5
 	}
-	return roationKeepMaps
+	return rotationKeepMaps
 }
 
 var valetudoConfig ValetudoConfig
 
 func getValetudoConfig() ValetudoConfig {
 	if (valetudoConfig == ValetudoConfig{}) {
-		configJson, err := ioutil.ReadFile(jsonConfigFile)
+		configJson, err := os.ReadFile(jsonConfigFile)
 		if err != nil {
 			log.Print(err)
 		}

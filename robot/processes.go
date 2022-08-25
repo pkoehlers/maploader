@@ -41,16 +41,6 @@ func ExcuteCmd(cmdStr string, cmdArgs ...string) {
 	}
 }
 
-func getRobotHostname() []byte {
-	cmd := exec.Command("uname", "-n")
-	out, err := cmd.Output()
-
-	if err != nil {
-		util.CheckAndHandleError(err)
-	}
-	return out
-}
-
 func startValetudo() {
 	devnull, dnerr := os.OpenFile(os.DevNull, os.O_WRONLY, 0755)
 	if dnerr != nil {

@@ -12,14 +12,14 @@ func Tar(tarballFilePath string, filePaths ...string) error {
 
 // Use shell command tar to untar into the root file system
 func Untar(tarballFilePath string, target string) error {
-	return tarCommand("xvf", tarballFilePath, "-C", "/")
+	return tarCommand("xvf", tarballFilePath, "-C", target)
 }
 
 // Private methods
 
 func tarCommand(mode string, tarballFilePath string, filePaths ...string) error {
 	app := "tar"
-	args := append([]string{mode, tarballFilePath})
+	args := []string{mode, tarballFilePath}
 	argsFinal := append(args, filePaths...)
 
 	cmd := exec.Command(app, argsFinal...)

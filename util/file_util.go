@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -11,7 +10,7 @@ import (
 
 func RemoveDirContents(dirNames ...string) error {
 	for _, dirName := range dirNames {
-		dir, err := ioutil.ReadDir(dirName)
+		dir, err := os.ReadDir(dirName)
 		for _, d := range dir {
 			os.RemoveAll(path.Join([]string{dirName, d.Name()}...))
 		}
