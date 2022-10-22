@@ -64,6 +64,7 @@ The following models are known to work with the maploader:
 | Model                | binary                     |
 |----------------------|----------------------------|
 | Dreame L10 Pro       | maploader-arm64            |
+| Dreame Z10 Pro       | maploader-arm64            |
 | Dreame F9            | maploader-arm              |
 | Dreame D9 Pro        | maploader-arm              |
 
