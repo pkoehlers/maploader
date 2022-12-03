@@ -135,10 +135,10 @@ func saveMap(client mqtt.Client, mapName string) {
 	publishState(client, "saving_map")
 	log.Printf("Saving current map as %s\n", mapName)
 
-	err := util.RotateFile(rotationKeepMaps, filepath.Join(maploaderDir, mapName), "tar")
+	err := util.RotateFile(rotationKeepMaps, filepath.Join(maploaderDir, mapName), "tar.gz")
 	checkAndHandleErrorWithMqtt(err, client)
 
-	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, currentMap), robot.CurrentRobot.MapFilesAndFolders()...)
+	err = tar.Tar(fmt.Sprintf("%s/%s.tar.gz", maploaderDir, mapName), robot.CurrentRobot.MapFilesAndFolders()...)
 	checkAndHandleErrorWithMqtt(err, client)
 
 	currentMap = mapName
