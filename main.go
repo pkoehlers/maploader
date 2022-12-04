@@ -152,7 +152,7 @@ func loadMap(client mqtt.Client, mapName string) {
 		mapName = currentMap
 	}
 
-	mapFileToLoadMatches, err := filepath.Glob(filepath.Join(maploaderDir, mapName+".tar"))
+	mapFileToLoadMatches, err := filepath.Glob(filepath.Join(maploaderDir, mapName+".tar.gz"))
 	checkAndHandleErrorWithMqtt(err, client)
 
 	publishState(client, "loading_map")
