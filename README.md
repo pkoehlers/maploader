@@ -27,9 +27,13 @@ I am using this with Homeassistant, where I trigger the map change as part of an
 ## MQTT Topics
 * Current map topic: ```valetudo/maploader/map```
 * Command topic: ```valetudo/maploader/map/set```
+* Save map topic: ```valetudo/maploader/map/save```
+* Load map topic: ```valetudo/maploader/map/load```
 * Maploader state topic: ```valetudo/maploader/status```
 
 The payload in the map topics simply is the string determining the map name.
+
+Load and Save may be used for backup functioniality, i.e. saving a map under a different name.
 
 The maploader status can change to the following value:
 
