@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"maploader/config"
@@ -85,8 +87,19 @@ func main() {
 
 	var broker = config.MqttHost()
 	var port = config.MqttPort()
+	var protocol = "tcp"
+
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	if config.MqttTLSEnabled() {
+		protocol = "ssl"
+		if len(config.MqttTLSCA()) > 0 {
+			opts.TLSConfig = new(tls.Config)
+			opts.TLSConfig.ClientCAs = x509.NewCertPool()
+			opts.TLSConfig.ClientCAs.AppendCertsFromPEM([]byte(config.MqttTLSCA()))
+		}
+	}
+	opts.AddBroker(fmt.Sprintf("%s://%s:%d", protocol, broker, port))
+
 	opts.SetClientID("maploader")
 	opts.SetUsername(config.MqttUsername())
 	opts.SetPassword(config.MqttPassword())

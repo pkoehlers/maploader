@@ -38,6 +38,15 @@ func MqttPassword() string {
 	config := getValetudoConfig()
 	return config.Mqtt.Connection.Authentication.Credentials.Password
 }
+func MqttTLSEnabled() bool {
+	config := getValetudoConfig()
+	return config.Mqtt.Connection.TLS.Enabled
+}
+func MqttTLSCA() string {
+	config := getValetudoConfig()
+	return config.Mqtt.Connection.TLS.Ca
+}
+
 func RotationKeepMaps() int {
 	rotationKeepMaps, err := strconv.Atoi(Getenv("ROTATION_KEEP_MAPS", "5"))
 	if err != nil {
