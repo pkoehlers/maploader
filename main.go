@@ -96,8 +96,9 @@ func main() {
 		protocol = "ssl"
 		if len(config.MqttTLSCA()) > 0 {
 			opts.TLSConfig = new(tls.Config)
-			opts.TLSConfig.ClientCAs = x509.NewCertPool()
-			opts.TLSConfig.ClientCAs.AppendCertsFromPEM([]byte(config.MqttTLSCA()))
+			opts.TLSConfig.InsecureSkipVerify = false
+			opts.TLSConfig.RootCAs = x509.NewCertPool()
+			opts.TLSConfig.RootCAs.AppendCertsFromPEM([]byte(config.MqttTLSCA()))
 		}
 	}
 	opts.AddBroker(fmt.Sprintf("%s://%s:%d", protocol, broker, port))
