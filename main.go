@@ -54,6 +54,8 @@ var messageSetTopicHandler mqtt.MessageHandler = func(client mqtt.Client, msg mq
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 	log.Println("Connected")
+	publishState(client, "idle")
+	publishCurrentMap(client)
 
 	subscriptions := []struct {
 		Topic   string
@@ -114,14 +116,16 @@ func main() {
 	client := mqtt.NewClient(opts)
 	retry := time.NewTicker(5 * time.Second)
 	for range retry.C {
-		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			//handle error
+		token := client.Connect()
+		token.Wait()
+		error := token.Error()
+		if error != nil {
+			log.Printf("MQTT connection failed: %s\n", error.Error())
 		} else {
 			retry.Stop()
 			break
 		}
 	}
-	publishState(client, "idle")
 	for {
 		time.Sleep(time.Second)
 	}
