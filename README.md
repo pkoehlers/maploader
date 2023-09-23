@@ -22,7 +22,7 @@ The default map name is "main".
 
 After the map change, Valetudo will be restarted and will not be reachable for some seconds. Sometimes Valetudo might show an empty map after restarting and it takes some time to load the actual map. This process can be sped up by starting the cleaning (and stopping it directly).
 
-I am using this with Homeassistant, where I trigger the map change as part of an automation and move the robot to the other zone. It can then be operated on the new map after the reboot.
+I am using this with Home Assistant, where I trigger the map change as part of an automation and move the robot to the other zone. It can then be operated on the new map after the reboot.
 
 ## MQTT Topics
 * Current map topic: ```valetudo/maploader/map```
@@ -33,7 +33,7 @@ I am using this with Homeassistant, where I trigger the map change as part of an
 
 The payload in the map topics simply is the string determining the map name.
 
-Load and Save may be used for backup functioniality, i.e. saving a map under a different name.
+Load and Save may be used for backup functionality, i.e. saving a map under a different name.
 
 The maploader status can change to the following value:
 
@@ -46,13 +46,14 @@ The maploader status can change to the following value:
 | error             | An error occurred, logs need to be checked              |
 | offline           | The maploader process exited / lost the MQTT connection |
 
-## Homeassistant Config
+## Home Assistant Config
 This project does not support Home Assistant auto discovery as I am using the sensor to define the list of possible maps. To allow Home Assistant to work with maploader add the section below to your configuration.yaml. To create a new map, just add a new value to the field and set the entity to that new value.
 
 ```
 mqtt:
   sensor:
     - state_topic: valetudo/maploader/status
+      name: "vacuum_maploader_status"
   select:
     - command_topic: valetudo/maploader/map/set
       state_topic: valetudo/maploader/map
@@ -100,7 +101,7 @@ Open the postboot script:
 
 ```vi /data/_root_postboot.sh```
 
-Search for the valetudo start block and add the maploader statup after the start of Valetudo so that it looks like this:
+Search for the valetudo start block and add the maploader binary after the start of Valetudo so that it looks like this:
 ```
 if [[ -f /data/valetudo ]]; then
         VALETUDO_CONFIG_PATH=/data/valetudo_config.json /data/valetudo > /dev/null 2>&1 &
@@ -125,7 +126,7 @@ The following things can be customized with environment variables:
 
 # Technical Details
 As mentioned this is only tested with the Dreame L10 Pro but other Dreame robots should work just fine.
-Currently these files/direcotries are considered "map files":
+Currently, these files/directories are considered "map files":
 
 * ```/data/ri```
 * ```/data/map```
