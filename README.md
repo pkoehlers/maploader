@@ -111,12 +111,13 @@ Reboot
 # Configuration
 The following things can be customized with environment variables:
 
-| Variable             | Default value              | Description                           |
-|----------------------|----------------------------|---------------------------------------|
-| VALETUDO_CONFIG_PATH | /data/valetudo_config.json | path to the valetudo config file      |
-| MAPLOADER_DIR        | /data/maploader            | directory to store the maps and logs  |
-| DEFAULT_MAP_NAME     | main                       | name of the main map (for first use)  |
-| ROTATION_KEEP_MAPS   | 5                          | number of map backups to keep per map |
+| Variable                   | Default value              | Description                                                 |
+|----------------------------|----------------------------|-------------------------------------------------------------|
+| VALETUDO_CONFIG_PATH       | /data/valetudo_config.json | path to the valetudo config file                            |
+| MAPLOADER_RESTART_VALETUDO |                            | Set to any value to also restart Valetudo after map changes |
+| MAPLOADER_DIR              | /data/maploader            | directory to store the maps and logs                        |
+| DEFAULT_MAP_NAME           | main                       | name of the main map (for first use)                        |
+| ROTATION_KEEP_MAPS         | 5                          | number of map backups to keep per map                       |
 
 
 

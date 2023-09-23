@@ -18,7 +18,10 @@ var MiioClientProcess = Process{StartCommand: "sh", StartArgs: []string{"/etc/rc
 var AvaProcess = Process{StartCommand: "sh", StartArgs: []string{"/etc/rc.d/ava.sh"}, StopCommand: "killall", StopArgs: []string{"-9", "ava"}}
 
 func StopProcesses() {
-	ExcuteCmd("killall", "-9", "valetudo")
+	if os.Getenv("MAPLOADER_RESTART_VALETUDO") != "" {
+		stopValetudo()
+	}
+
 	for _, restartProcess := range CurrentRobot.restartProcesses {
 		ExcuteCmd(restartProcess.StopCommand, restartProcess.StopArgs...)
 	}
@@ -28,7 +31,10 @@ func StartProcesses() {
 	for _, restartProcess := range CurrentRobot.restartProcesses {
 		ExcuteCmd(restartProcess.StartCommand, restartProcess.StartArgs...)
 	}
-	startValetudo()
+
+	if os.Getenv("MAPLOADER_RESTART_VALETUDO") != "" {
+		startValetudo()
+	}
 }
 
 func ExcuteCmd(cmdStr string, cmdArgs ...string) {
@@ -39,6 +45,10 @@ func ExcuteCmd(cmdStr string, cmdArgs ...string) {
 	if err != nil {
 		util.CheckAndHandleError(err)
 	}
+}
+
+func stopValetudo() {
+	ExcuteCmd("killall", "-9", "valetudo")
 }
 
 func startValetudo() {
