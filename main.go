@@ -197,6 +197,10 @@ func loadMap(client mqtt.Client, mapName string) {
 
 	currentMap = mapName
 	publishCurrentMap(client)
+
+	publishState(client, "starting_services")
+	robot.WaitForProcesses()
+
 	publishState(client, "idle")
 }
 

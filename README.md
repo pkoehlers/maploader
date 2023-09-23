@@ -37,12 +37,14 @@ Load and Save may be used for backup functioniality, i.e. saving a map under a d
 
 The maploader status can change to the following value:
 
-| Status       | Description                                             |
-| ------------ | ------------------------------------------------------- |
-| idle         | Maploader is started and awaiting commands              |
-| changing_map | The map is currently being changed                      |
-| error        | An error occured, logs need to be checked               |
-| offline      | The maploader process exited / lost the MQTT connection |
+| Status            | Description                                             |
+|-------------------|---------------------------------------------------------|
+| idle              | Maploader is started and awaiting commands              |
+| loading_map       | The map is currently being loaded                       |
+| saving_map        | The map is currently being saved                        |
+| starting_services | Waiting for robot services to restart                   |
+| error             | An error occurred, logs need to be checked              |
+| offline           | The maploader process exited / lost the MQTT connection |
 
 ## Homeassistant Config
 This project does not support Home Assistant auto discovery as I am using the sensor to define the list of possible maps. To allow Home Assistant to work with maploader add the section below to your configuration.yaml. To create a new map, just add a new value to the field and set the entity to that new value.
