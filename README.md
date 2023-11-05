@@ -72,6 +72,7 @@ The following models are known to work with the maploader:
 | Dreame F9            | maploader-arm              |
 | Dreame D9            | maploader-arm              |
 | Dreame D9 Pro        | maploader-arm              |
+| Dreame W10           | maploader-arm              |
 
 If your Dreame robot is not listed here, you need to find out the arch of your robot (e.g. with ```uname -m```, where ```aarch64``` -> ...-arm64 binary).
 
