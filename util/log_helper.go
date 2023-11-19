@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"log"
 	"os"
 )
@@ -17,6 +18,6 @@ func InitLogging(logFolder string) {
 		log.Fatalf("error opening file: %v", err)
 	}
 
-	log.SetOutput(f)
+	log.SetOutput(io.MultiWriter(f, os.Stdout))
 	log.Println("Logging initialized")
 }
