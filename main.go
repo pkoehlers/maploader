@@ -29,7 +29,7 @@ var currentMap string
 
 var rotationKeepMaps int
 
-var messageStateTopicHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+var messageCurrentMapTopicHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 	if string(msg.Payload()) != currentMap {
 		log.Printf("Loaded current map from status topic")
@@ -62,7 +62,7 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		Topic   string
 		Handler mqtt.MessageHandler
 	}{
-		{formatMqttTopic(currentMapTopic), messageStateTopicHandler},
+		{formatMqttTopic(currentMapTopic), messageCurrentMapTopicHandler},
 		{formatMqttTopic(saveTopic), messageSaveTopicHandler},
 		{formatMqttTopic(loadTopic), messageLoadTopicHandler},
 		{formatMqttTopic(setTopic), messageSetTopicHandler},

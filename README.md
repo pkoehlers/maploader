@@ -25,17 +25,16 @@ After the map change, Valetudo will be restarted and will not be reachable for s
 I am using this with Home Assistant, where I trigger the map change as part of an automation and move the robot to the other zone. It can then be operated on the new map after the reboot.
 
 ## MQTT Topics
-* Current map topic: ```valetudo/{identifier}/maploader/map```
-* Command topic: ```valetudo/{identifier}/maploader/map/set```
-* Save map topic: ```valetudo/{identifier}/maploader/map/save```
-* Load map topic: ```valetudo/{identifier}/maploader/map/load```
-* Maploader state topic: ```valetudo/{identifier}/maploader/status```
+
+| Topic                                      | Publisher    | Payload   | Description                                                                                                                                                                                                          |
+|--------------------------------------------|--------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `valetudo/{identifier}/maploader/map`      | Robot + Home | Map name  | Maploader publishes the current map name to this topic after a map switch.<br/><br/>Can be used to set the current map name without changing the active map.                                                         |
+| `valetudo/{identifier}/maploader/map/set`  | Home         | Map name  | Stores the active map and switches to the given map.<br/><br/>A backup of the current map file is made before the active map is stored.<br/><br/>If no map is stored under the given map name a blank map is loaded. |
+| `valetudo/{identifier}/maploader/map/save` | Home         | Map name  | Saves the active map under the given name and switches to that map.<br/><br/>A backup of the map file is made before it is overwritten.                                                                              |
+| `valetudo/{identifier}/maploader/map/load` | Home         | Map name  | Switches to the given map without storing the active map.<br/><br/>If no map is stored under the given map name a blank map is loaded.                                                                               |
+| `valetudo/{identifier}/maploader/status`   | Robot        | see below | Maploader publishes its current status to this topic.                                                                                                                                                                |
 
 The identifier is set in the MQTT settings in Valetudo.
-
-The payload in the map topics simply is the string determining the map name.
-
-Load and Save may be used for backup functionality, i.e. saving a map under a different name.
 
 The maploader status can change to the following value:
 
