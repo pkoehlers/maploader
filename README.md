@@ -25,11 +25,13 @@ After the map change, Valetudo will be restarted and will not be reachable for s
 I am using this with Home Assistant, where I trigger the map change as part of an automation and move the robot to the other zone. It can then be operated on the new map after the reboot.
 
 ## MQTT Topics
-* Current map topic: ```valetudo/maploader/map```
-* Command topic: ```valetudo/maploader/map/set```
-* Save map topic: ```valetudo/maploader/map/save```
-* Load map topic: ```valetudo/maploader/map/load```
-* Maploader state topic: ```valetudo/maploader/status```
+* Current map topic: ```valetudo/{identifier}/maploader/map```
+* Command topic: ```valetudo/{identifier}/maploader/map/set```
+* Save map topic: ```valetudo/{identifier}/maploader/map/save```
+* Load map topic: ```valetudo/{identifier}/maploader/map/load```
+* Maploader state topic: ```valetudo/{identifier}/maploader/status```
+
+The identifier is set in the MQTT settings in Valetudo.
 
 The payload in the map topics simply is the string determining the map name.
 
@@ -52,11 +54,11 @@ This project does not support Home Assistant auto discovery as I am using the se
 ```
 mqtt:
   sensor:
-    - state_topic: valetudo/maploader/status
+    - state_topic: valetudo/foo/maploader/status
       name: "vacuum_maploader_status"
   select:
-    - command_topic: valetudo/maploader/map/set
-      state_topic: valetudo/maploader/map
+    - command_topic: valetudo/foo/maploader/map/set
+      state_topic: valetudo/foo/maploader/map
       name: "vacuum_maploader_map"
       options:
         - "main"

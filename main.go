@@ -10,14 +10,15 @@ import (
 	"maploader/tar"
 	"maploader/util"
 	"path/filepath"
+	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 const (
-	stateTopic      string = "valetudo/maploader/status"
-	currentMapTopic string = "valetudo/maploader/map"
+	stateTopic      string = "valetudo/{identifier}/maploader/status"
+	currentMapTopic string = "valetudo/{identifier}/maploader/map"
 	saveTopic       string = currentMapTopic + "/save"
 	loadTopic       string = currentMapTopic + "/load"
 	setTopic        string = currentMapTopic + "/set"
@@ -61,10 +62,10 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		Topic   string
 		Handler mqtt.MessageHandler
 	}{
-		{currentMapTopic, messageStateTopicHandler},
-		{saveTopic, messageSaveTopicHandler},
-		{loadTopic, messageLoadTopicHandler},
-		{setTopic, messageSetTopicHandler},
+		{formatMqttTopic(currentMapTopic), messageStateTopicHandler},
+		{formatMqttTopic(saveTopic), messageSaveTopicHandler},
+		{formatMqttTopic(loadTopic), messageLoadTopicHandler},
+		{formatMqttTopic(setTopic), messageSetTopicHandler},
 	}
 	for _, sub := range subscriptions {
 		token := client.Subscribe(sub.Topic, 1, sub.Handler)
@@ -103,13 +104,13 @@ func main() {
 	}
 	opts.AddBroker(fmt.Sprintf("%s://%s:%d", protocol, broker, port))
 
-	opts.SetClientID("maploader")
+	opts.SetClientID(fmt.Sprintf("maploader_%s", config.MqttIdentifier())) // Valetudo uses a generated ID but that's not available to us
 	opts.SetUsername(config.MqttUsername())
 	opts.SetPassword(config.MqttPassword())
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
 
-	opts.WillTopic = stateTopic
+	opts.WillTopic = formatMqttTopic(stateTopic)
 	opts.WillEnabled = true
 	opts.WillPayload = []byte("offline")
 	opts.WillRetained = true
@@ -133,13 +134,13 @@ func main() {
 }
 
 func publishCurrentMap(client mqtt.Client) {
-	token := client.Publish(currentMapTopic, 0, true, currentMap)
+	token := client.Publish(formatMqttTopic(currentMapTopic), 0, true, currentMap)
 	token.Wait()
 	time.Sleep(time.Second)
 }
 
 func publishState(client mqtt.Client, status string) {
-	token := client.Publish(stateTopic, 0, true, status)
+	token := client.Publish(formatMqttTopic(stateTopic), 0, true, status)
 	token.Wait()
 	time.Sleep(time.Second)
 }
@@ -209,4 +210,8 @@ func checkAndHandleErrorWithMqtt(err error, client mqtt.Client) {
 		util.CheckAndHandleError(err)
 		publishState(client, "error")
 	}
+}
+
+func formatMqttTopic(topic string) string {
+	return strings.ReplaceAll(topic, "{identifier}", config.MqttIdentifier())
 }
