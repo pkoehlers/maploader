@@ -27,4 +27,8 @@ var robots []Robot = []Robot{
 		MapFolders:       []string{"/data/ri", "/data/map", "/data/DivideMap", "/data/DivideDebug"},
 		mapFiles:         []string{"/data/config/ava/mult_map.json", "/data/log/map_info.bin"},
 		restartProcesses: []Process{MiioClientProcess, AvaProcess}},
+	{model: "r2228", // Dreame L10s Ultra
+		MapFolders:       []string{"/data/ri", "/data/map", "/data/DivideMap"},
+		mapFiles:         []string{"/data/config/ava/mult_map.json"},
+		restartProcesses: []Process{MiioClientProcess, AvaProcess}},
 }
