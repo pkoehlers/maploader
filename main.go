@@ -56,7 +56,6 @@ var messageSetTopicHandler mqtt.MessageHandler = func(client mqtt.Client, msg mq
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 	log.Println("Connected")
 	publishState(client, "idle")
-	publishCurrentMap(client)
 
 	subscriptions := []struct {
 		Topic   string
@@ -72,6 +71,11 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		token.Wait()
 		log.Printf("Subscribed to topic: %s", sub.Topic)
 	}
+
+	if currentMap == "" {
+		currentMap = config.Getenv("DEFAULT_MAP_NAME", "main")
+	}
+	publishCurrentMap(client)
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
@@ -79,7 +83,6 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func main() {
-	currentMap = config.Getenv("DEFAULT_MAP_NAME", "main")
 	maploaderDir = config.Getenv("MAPLOADER_DIR", "/data/maploader")
 	rotationKeepMaps = config.RotationKeepMaps()
 
