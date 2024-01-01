@@ -10,18 +10,17 @@ import (
 	"maploader/tar"
 	"maploader/util"
 	"path/filepath"
-	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-const (
-	stateTopic      string = "valetudo/{identifier}/maploader/status"
-	currentMapTopic string = "valetudo/{identifier}/maploader/map"
-	saveTopic       string = currentMapTopic + "/save"
-	loadTopic       string = currentMapTopic + "/load"
-	setTopic        string = currentMapTopic + "/set"
+var (
+	stateTopic      string
+	currentMapTopic string
+	saveTopic       string
+	loadTopic       string
+	setTopic        string
 )
 
 var maploaderDir string
@@ -61,10 +60,10 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 		Topic   string
 		Handler mqtt.MessageHandler
 	}{
-		{formatMqttTopic(currentMapTopic), messageCurrentMapTopicHandler},
-		{formatMqttTopic(saveTopic), messageSaveTopicHandler},
-		{formatMqttTopic(loadTopic), messageLoadTopicHandler},
-		{formatMqttTopic(setTopic), messageSetTopicHandler},
+		{currentMapTopic, messageCurrentMapTopicHandler},
+		{saveTopic, messageSaveTopicHandler},
+		{loadTopic, messageLoadTopicHandler},
+		{setTopic, messageSetTopicHandler},
 	}
 	for _, sub := range subscriptions {
 		token := client.Subscribe(sub.Topic, 1, sub.Handler)
@@ -82,12 +81,23 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 	log.Printf("Connect lost: %v", err)
 }
 
+func initMqttTopics() {
+	topicPrefix := config.MqttTopicPrefix()
+	stateTopic = fmt.Sprintf("%s/%s/maploader/status", topicPrefix, config.MqttIdentifier())
+	currentMapTopic = fmt.Sprintf("%s/%s/maploader/map", topicPrefix, config.MqttIdentifier())
+	saveTopic = currentMapTopic + "/save"
+	loadTopic = currentMapTopic + "/load"
+	setTopic = currentMapTopic + "/set"
+
+}
+
 func main() {
 	maploaderDir = config.Getenv("MAPLOADER_DIR", "/data/maploader")
 	rotationKeepMaps = config.RotationKeepMaps()
 
 	util.InitLogging(maploaderDir + "/log")
 	config.InitConfig(config.Getenv("VALETUDO_CONFIG_PATH", "/data/valetudo_config.json"))
+	initMqttTopics()
 
 	robot.DetectRobot()
 
@@ -113,7 +123,7 @@ func main() {
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
 
-	opts.WillTopic = formatMqttTopic(stateTopic)
+	opts.WillTopic = stateTopic
 	opts.WillEnabled = true
 	opts.WillPayload = []byte("offline")
 	opts.WillRetained = true
@@ -137,13 +147,13 @@ func main() {
 }
 
 func publishCurrentMap(client mqtt.Client) {
-	token := client.Publish(formatMqttTopic(currentMapTopic), 0, true, currentMap)
+	token := client.Publish(currentMapTopic, 0, true, currentMap)
 	token.Wait()
 	time.Sleep(time.Second)
 }
 
 func publishState(client mqtt.Client, status string) {
-	token := client.Publish(formatMqttTopic(stateTopic), 0, true, status)
+	token := client.Publish(stateTopic, 0, true, status)
 	token.Wait()
 	time.Sleep(time.Second)
 }
@@ -214,8 +224,4 @@ func checkAndHandleErrorWithMqtt(err error, client mqtt.Client) {
 		util.CheckAndHandleError(err)
 		publishState(client, "error")
 	}
-}
-
-func formatMqttTopic(topic string) string {
-	return strings.ReplaceAll(topic, "{identifier}", config.MqttIdentifier())
 }
