@@ -51,6 +51,15 @@ func MqttIdentifier() string {
 	return config.Mqtt.Identity.Identifier
 }
 
+func MqttTopicPrefix() string {
+	config := getValetudoConfig()
+	if config.Mqtt.Customizations.TopicPrefix != "" {
+		return config.Mqtt.Customizations.TopicPrefix
+	}
+
+	return "valetudo"
+}
+
 func RotationKeepMaps() int {
 	rotationKeepMaps, err := strconv.Atoi(Getenv("ROTATION_KEEP_MAPS", "5"))
 	if err != nil {
