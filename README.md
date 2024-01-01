@@ -1,28 +1,42 @@
 # Dreame Vacuum Robot Maploader
 
-Provides a map changing functionality for rooted vacuum robots running Valetudo controllable via MQTT.
-
-Currently this only supports Dreame robots, tested with a [Dreame L10 Pro](https://dontvacuum.me/robotinfo/detail_dreame.vacuum.p2029_0.html).
-
-A similar project for Xiaomi/Roborock vacuums (without further affiliation) can be found here: [Thyraz/MapLoader](https://github.com/Thyraz/MapLoader)
+Provides a map changing functionality for rooted vacuum robots running Valetudo, controllable via MQTT. This project currently supports Dreame robots, see the supported model list below.
+A similar project for Xiaomi/Roborock vacuums (without further affiliation) can be found here: [Thyraz/MapLoader](https://github.com/Thyraz/MapLoader).
 
 ## Note
-The map changing process used in this project is purely based on observations and testing. 
-This is neither supported by Dreame nor Valetudo. If you consider your map valueable, back it up before using the maploader.
+The map changing process used in this project is based on observations and testing. It is not officially supported by Dreame or Valetudo. It's recommended to back up your map before using the maploader. Map changes should not be done during cleaning tasks but may be done when the robot is not docked.
 
-It does not matter if the vacuum is docked or not but ensure that map changes don't take place during cleaning tasks.
-# How it works
-The maploader is a small programm running on the robot. It creates a state and command topic in the configured MQTT broker. 
+## How it works
+The maploader is a program running on the robot. It communicates with a configured MQTT broker to manage map changes. 
 
-When a new map name is sent to the command topic, the robot will backup the current map files, remove all the map files and restore the other map if it exists. It will finally restart relevant processes on the vacuum to load the new map.
+When a new map name is received, the robot backs up the current map, removes all map files, and loads the new map if it exists. The robot's relevant processes are then restarted to apply the new map.
 
-In case anything goes wrong, you can get the last few backup archives for each map in ```/data/maploader```.
+In case of issues, backup archives for each map are available in `/data/maploader`. 
 
-The default map name is "main".
+The default map name is "main". 
 
-After the map change, Valetudo will be restarted and will not be reachable for some seconds. Sometimes Valetudo might show an empty map after restarting and it takes some time to load the actual map. This process can be sped up by starting the cleaning (and stopping it directly).
+After map change, Valetudo restarts and may temporarily show an empty or the old map. This process can be sped up by starting the cleaning (and stopping it immediately).
 
-I am using this with Home Assistant, where I trigger the map change as part of an automation and move the robot to the other zone. It can then be operated on the new map after the reboot.
+## Feature: WAV Audio Notification
+Maploader now supports playing a WAV audio file for status changes. This feature is particularly useful for audible notifications when the map is loaded or changed. The audio file path and arguments for the `aplay` command are configurable via environment variables.
+
+### Configuration for WAV Audio Feature
+- **WAV_FILE_MAP_LOADED**: Set the path to the WAV file. You can use `{map_name}` as a placeholder in the path, which will be replaced with the current map name. If the specific map's WAV file does not exist, a default file (with "default" replacing `{map_name}`) will be used.
+- **WAV_APLAY_ARGS**: Optionally set the arguments for the `aplay` command. Defaults to `-Dhw:0,0` if not set.
+
+Below is an example of the filenames for the WAV files, showcasing different audio files for different maps:
+- `/data/maploader/wav`
+  - `map_change_default.wav`
+  - `map_change_livingroom.wav`
+  - `map_change_main.wav`
+
+This can be used with this environment variable:
+`WAV_FILE_MAP_LOADED=/data/maploader/wav/map_change_{map_name}.wav`
+
+The wav directory includes a default file (`map_change_default.wav`) and specific files for different map names (e.g., `livingroom`, `main`).
+
+
+The WAV file will be played automatically after map changes to provide auditory feedback.
 
 ## MQTT Topics
 
@@ -117,14 +131,15 @@ Reboot
 # Configuration
 The following things can be customized with environment variables:
 
-| Variable                   | Default value              | Description                                                 |
-|----------------------------|----------------------------|-------------------------------------------------------------|
-| VALETUDO_CONFIG_PATH       | /data/valetudo_config.json | path to the valetudo config file                            |
-| MAPLOADER_RESTART_VALETUDO |                            | Set to any value to also restart Valetudo after map changes |
-| MAPLOADER_DIR              | /data/maploader            | directory to store the maps and logs                        |
-| DEFAULT_MAP_NAME           | main                       | name of the main map (for first use)                        |
-| ROTATION_KEEP_MAPS         | 5                          | number of map backups to keep per map                       |
-
+| Variable                   | Default value              | Description                                                    |
+|----------------------------|----------------------------|----------------------------------------------------------------|
+| VALETUDO_CONFIG_PATH       | /data/valetudo_config.json | Path to the valetudo config file                               |
+| MAPLOADER_RESTART_VALETUDO |                            | Set to any value to restart Valetudo after map changes         |
+| MAPLOADER_DIR              | /data/maploader            | Directory to store the maps and logs                           |
+| DEFAULT_MAP_NAME           | main                       | Name of the main map (for first use)                           |
+| ROTATION_KEEP_MAPS         | 5                          | Number of map backups to keep per map                          |
+| WAV_FILE_MAP_LOADED        |                            | Path to WAV file for audio notification (supports placeholders)|
+| WAV_APLAY_ARGS             | -Dhw:0,0                   | Arguments for the `aplay` command (audio playback)             |
 
 
 # Technical Details
