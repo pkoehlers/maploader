@@ -206,6 +206,7 @@ func loadMap(client mqtt.Client, mapName string) {
 	robot.WaitForProcesses()
 
 	publishState(client, "idle")
+	robot.PlayMapLoadedSound(currentMap)
 }
 
 func checkAndHandleErrorWithMqtt(err error, client mqtt.Client) {
