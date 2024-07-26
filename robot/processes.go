@@ -62,7 +62,7 @@ func WaitForProcesses() {
 			err := cmd.Run()
 
 			if err != nil {
-				util.CheckAndHandleError(err)
+				log.Println(err)
 			}
 
 			if cmd.ProcessState.ExitCode() == 0 {
