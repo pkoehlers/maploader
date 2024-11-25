@@ -78,18 +78,17 @@ mqtt:
         - "second_floor"
 
 ```
+### _Optional_: Add to existing vacuum in Home Assistant
 
-You can optionally associate the maploader entities (above) with an existing device to make them appear as entities of an existing device, e.g. a valetudo vacuum. To do so, add the following block to both maploader entities (sensor **and** select). Modify the `device` values to match your existing device by navigating to its Device Info page, clicking "Download diagnostics" (under the 3-dot button), and finding the fields `discovery_data`->`payload`->`device` in the downloaded file.
+If you wish, you can add maploader controls and logs to an existing vacuum device (see [Screenshot](https://github.com/user-attachments/assets/a7a61aff-01df-4d2d-87c3-1cf8a0ba835c)). To do so, add the following block to both maploader entities (`sensor` **and** `select`). Modify `device` values to match your existing device by navigating to its Device Info page, clicking "Download diagnostics" (under the 3-dot button), and searching the downloaded file for fields `discovery_data`->`payload`->`device`.
 
 ```
-...
       unique_id: "foo_maploader_status" # or "foo_maploader_map"
       device:
         name: "valetudo" # 
         identifiers: "foo"
         manufacturer: "Dreame"
         model: "L10S Ultra
-...
 ```
 
 # Supported robots
