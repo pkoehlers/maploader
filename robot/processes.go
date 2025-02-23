@@ -77,11 +77,15 @@ func WaitForProcesses() {
 }
 
 func ExcuteCmd(cmdStr string, cmdArgs ...string) {
+	log.Printf("[DEBUG] Executing command: %s %v", cmdStr, cmdArgs)
+
 	cmd := exec.Command(cmdStr, cmdArgs...)
-	err := cmd.Run()
+	output, err := cmd.CombinedOutput() // Captures stdout and stderr
 
 	if err != nil {
-		util.CheckAndHandleError(err)
+		log.Printf("[ERROR] Command failed: %s %v | Error: %v | Output: %s", cmdStr, cmdArgs, err, string(output))
+	} else {
+		log.Printf("[INFO] Command succeeded: %s %v | Output: %s", cmdStr, cmdArgs, string(output))
 	}
 }
 

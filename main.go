@@ -208,14 +208,16 @@ func loadMap(client mqtt.Client, mapName string) {
 
 	log.Println("restarting processes")
 	robot.StartProcesses()
-
+	log.Printf("After process restart")
 	currentMap = mapName
 	publishCurrentMap(client)
-
+	log.Printf("After map publish")
 	publishState(client, "starting_services")
+	log.Printf("Wait for processes")
 	robot.WaitForProcesses()
 
 	publishState(client, "idle")
+	log.Printf("before sound playback")
 	robot.PlayMapLoadedSound(currentMap)
 }
 
