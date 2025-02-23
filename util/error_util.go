@@ -2,12 +2,10 @@ package util
 
 import (
 	"log"
-	"os"
 )
 
-func CheckAndHandleError(err error) {
+func CheckAndHandleError(context string, err error) {
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		log.Fatalf("[ERROR] %s: %v", context, err)
 	}
 }
