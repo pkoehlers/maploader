@@ -102,6 +102,7 @@ The following models are known to work with the maploader:
 | Dreame D10S Pro      | maploader-arm64            |
 | Dreame D10S Plus     | maploader-arm64            |
 | Dreame L10s Ultra    | maploader-arm64            |
+| Dreame X40           | maploader-arm64            |
 | Dreame F9            | maploader-arm              |
 | Dreame D9            | maploader-arm              |
 | Dreame D9 Pro        | maploader-arm              |
