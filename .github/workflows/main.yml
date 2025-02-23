@@ -19,13 +19,13 @@ jobs:
     - name: Compile ARM
       run: env GOOS=linux GOARCH=arm go build -o maploader-arm
     - name: Archive ARM64
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: maploader-arm64
         path: |
           maploader-arm64
     - name: Archive ARM
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: maploader-arm
         path: |
