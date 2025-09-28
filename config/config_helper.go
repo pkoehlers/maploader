@@ -46,6 +46,10 @@ func MqttTLSCA() string {
 	config := getValetudoConfig()
 	return config.Mqtt.Connection.TLS.Ca
 }
+func MqttTLSIgnoreCertificateErrors() bool {
+	config := getValetudoConfig()
+	return config.Mqtt.Connection.TLS.IgnoreCertificateErrors
+}
 func MqttIdentifier() string {
 	config := getValetudoConfig()
 	if config.Mqtt.Identity.Identifier != "" {

@@ -108,9 +108,9 @@ func main() {
 	opts := mqtt.NewClientOptions()
 	if config.MqttTLSEnabled() {
 		protocol = "ssl"
+		opts.TLSConfig = new(tls.Config)
+		opts.TLSConfig.InsecureSkipVerify = config.MqttTLSIgnoreCertificateErrors()
 		if len(config.MqttTLSCA()) > 0 {
-			opts.TLSConfig = new(tls.Config)
-			opts.TLSConfig.InsecureSkipVerify = false
 			opts.TLSConfig.RootCAs = x509.NewCertPool()
 			opts.TLSConfig.RootCAs.AppendCertsFromPEM([]byte(config.MqttTLSCA()))
 		}

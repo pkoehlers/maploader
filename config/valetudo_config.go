@@ -27,8 +27,9 @@ type ValetudoConfig struct {
 			Host string `json:"host"`
 			Port int    `json:"port"`
 			TLS  struct {
-				Enabled bool   `json:"enabled"`
-				Ca      string `json:"ca"`
+				Enabled                 bool   `json:"enabled"`
+				Ca                      string `json:"ca"`
+				IgnoreCertificateErrors bool   `json:"ignoreCertificateErrors"`
 			} `json:"tls"`
 			Authentication struct {
 				Credentials struct {
