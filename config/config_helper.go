@@ -48,7 +48,14 @@ func MqttTLSCA() string {
 }
 func MqttIdentifier() string {
 	config := getValetudoConfig()
-	return config.Mqtt.Identity.Identifier
+	if config.Mqtt.Identity.Identifier != "" {
+		return config.Mqtt.Identity.Identifier
+	}
+	hostname, err := os.Hostname()
+	if err != nil {
+		return "unknownrobot"
+	}
+	return hostname
 }
 
 func MqttTopicPrefix() string {
