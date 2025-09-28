@@ -13,7 +13,7 @@ When a new map name is received, the robot backs up the current map, removes all
 
 In case of issues, backup archives for each map are available in `/data/maploader`. 
 
-The default map name is "main". 
+The default map name is main. 
 
 After map change, Valetudo restarts and may temporarily show an empty or the old map. This process can be sped up by starting the cleaning (and stopping it immediately).
 
@@ -74,8 +74,8 @@ mqtt:
       state_topic: valetudo/foo/maploader/map
       name: "vacuum_maploader_map"
       options:
-        - "main"
-        - "second_floor"
+        - main
+        - second_floor
 
 ```
 ### _Optional_: Add to existing vacuum in Home Assistant
@@ -88,25 +88,26 @@ If you wish, you can add maploader controls and logs to an existing vacuum devic
         name: "valetudo" # 
         identifiers: "foo"
         manufacturer: "Dreame"
-        model: "L10S Ultra
+        model: "L10S Ultra"
 ```
 
 # Supported robots
 
 The following models are known to work with the maploader:
 
-| Model                | binary                     |
-|----------------------|----------------------------|
-| Dreame L10 Pro       | maploader-arm64            |
-| Dreame Z10 Pro       | maploader-arm64            |
-| Dreame D10S Pro      | maploader-arm64            |
-| Dreame D10S Plus     | maploader-arm64            |
-| Dreame L10s Ultra    | maploader-arm64            |
-| Dreame X40           | maploader-arm64            |
-| Dreame F9            | maploader-arm              |
-| Dreame D9            | maploader-arm              |
-| Dreame D9 Pro        | maploader-arm              |
-| Dreame W10           | maploader-arm              |
+| Model                               | binary                     |
+|-------------------------------------|----------------------------|
+| Dreame L10 Pro                      | maploader-arm64            |
+| Dreame Z10 Pro                      | maploader-arm64            |
+| Dreame D10S Pro                     | maploader-arm64            |
+| Dreame D10S Plus                    | maploader-arm64            |
+| Dreame L10s Ultra                   | maploader-arm64            |
+| Dreame X40                          | maploader-arm64            |
+| Dreame F9                           | maploader-arm              |
+| Dreame D9                           | maploader-arm              |
+| Dreame D9 Pro                       | maploader-arm              |
+| Dreame W10                          | maploader-arm              |
+| Xiaomi Mi Robot Vacuum-Mop 2 Ultra  | maploader-arm64            |
 
 If your Dreame robot is not listed here, you need to find out the arch of your robot (e.g. with ```uname -m```, where ```aarch64``` -> ...-arm64 binary).
 
