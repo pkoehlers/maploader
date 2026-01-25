@@ -80,16 +80,45 @@ mqtt:
 ```
 ### _Optional_: Add to existing vacuum in Home Assistant
 
-If you wish, you can add maploader controls and logs to an existing vacuum device (see [Screenshot](https://github.com/user-attachments/assets/a7a61aff-01df-4d2d-87c3-1cf8a0ba835c)). To do so, add the following block to both maploader entities (`sensor` **and** `select`). Modify `device` values to match your existing device by navigating to its Device Info page, clicking "Download diagnostics" (under the 3-dot button), and searching the downloaded file for fields `discovery_data`->`payload`->`device`.
+If you wish, you can add maploader controls and logs to an existing vacuum device (see [Screenshot](https://github.com/user-attachments/assets/a7a61aff-01df-4d2d-87c3-1cf8a0ba835c)), add the `unique_id` and `device` block to both maploader entities (`sensor` **and** `select`).
 
-```
-      unique_id: "foo_maploader_status" # or "foo_maploader_map"
+#### How to find device values:
+
+1. In Home Assistant, go to **Settings → Devices & Services → Devices**
+2. Open your Valetudo vacuum device
+3. Click the **three-dot menu** (⋮) and select **"Download diagnostics"**
+4. Extract the JSON file and search for `"discovery_data"` → `"payload"` → `"device"`
+5. Copy the values for `identifiers`, `manufacturer`, `model`, and `name` from that section
+
+#### Updated configuration:
+
+```yaml
+mqtt:
+  sensor:
+    - state_topic: valetudo/foo/maploader/status
+      name: "vacuum_maploader_status"
+      unique_id: "foo_maploader_status"
       device:
-        name: "valetudo" # 
+        name: "valetudo"
+        identifiers: "foo"
+        manufacturer: "Dreame"
+        model: "L10S Ultra"
+  select:
+    - command_topic: valetudo/foo/maploader/map/set
+      state_topic: valetudo/foo/maploader/map
+      name: "vacuum_maploader_map"
+      unique_id: "foo_maploader_map"
+      options:
+        - main
+        - second_floor
+      device:
+        name: "valetudo"
         identifiers: "foo"
         manufacturer: "Dreame"
         model: "L10S Ultra"
 ```
+
+Replace `foo` with your vacuum's identifier, and update the `device` values to match your vacuum's actual values (found in diagnostics).
 
 # Supported robots
 
