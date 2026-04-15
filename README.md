@@ -137,6 +137,7 @@ The following models are known to work with the maploader:
 | Dreame D9 Pro                       | maploader-arm              |
 | Dreame W10                          | maploader-arm              |
 | Xiaomi Mi Robot Vacuum-Mop 2 Ultra  | maploader-arm64            |
+| Mova P10 Pro Ultra                  | maploader-arm64            |
 
 If your Dreame robot is not listed here, you need to find out the arch of your robot (e.g. with ```uname -m```, where ```aarch64``` -> ...-arm64 binary).
 
